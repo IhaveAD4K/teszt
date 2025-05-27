@@ -60,3 +60,37 @@ def kolcsonzes(ingatlan_id, kolcsonzo_nev):
         f.write(sor + '\n')
     mentes_ingatlanok(uj_lista)
     print(f" Kikölcsönözve: {kolcsonzott['Cím']} -> {kolcsonzo_nev}")
+
+def menu():
+    while True:
+        print("\n KÖLCSÖNZŐ RENDSZER")
+        print("1 - Ingatlan keresése")
+        print("2 - Ingatlan kölcsönzése")
+        print("3 - Kilépés")
+        valaszt = input("Válassz műveletet (1/2/3): ")
+
+        if valaszt == '1':
+            helyszin = input("Helyszín (Enter, ha nem számít): ")
+            tipus = input("Típus (lakás, ház, garzon stb.): ")
+            max_ar = input("Max ár (Ft/hó): ")
+
+            talalatok = keres_ingatlan(helyszin, tipus, max_ar)
+            if talalatok:
+                print("\n Talált ingatlanok:")
+                for ing in talalatok:
+                    print(f"{ing['ID']}: {ing['Cím']} | {ing['Típus']} | {ing['Ár/hó']} Ft")
+            else:
+                print(" Nincs találat.")
+
+        elif valaszt == '2':
+            ingatlan_id = input("Add meg az ingatlan ID-ját: ")
+            kolcsonzo = input("Kölcsönző neve: ")
+            kolcsonzes(ingatlan_id, kolcsonzo)
+
+        elif valaszt == '3':
+            print("Kilépés...")
+            break
+
+        else:
+            print(" Érvénytelen választás!")
+menu()
