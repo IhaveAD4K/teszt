@@ -1,0 +1,3 @@
+ID|Cím|Típus|Alapterület|Ár/hó|Állapot|Erkély|Elérhető
+1|Budapest|lakás|45|150000|jó|igen|igen
+2|Debrecen|családi ház|120|250000|felújított|nem|igen
