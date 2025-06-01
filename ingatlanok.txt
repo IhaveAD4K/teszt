@@ -1,3 +1,7 @@
-ID|Cím|Típus|Alapterület|Ár/hó|Állapot|Erkély|Elérhető
-1|Budapest|lakás|45|150000|jó|igen|igen
-2|Debrecen|családi ház|120|250000|felújított|nem|igen
+ID ; Cím ; Típus ; Alapterület ; Ár/hó ; Állapot ; Erkély ; Elérhető
+1 ; Budapest ; lakás ; 45 ; 150000 ; jó ; igen; igen
+2 ; Debrecen ; családi ház ; 120 ; 250000 ; felújított ; nem ; igen
+3 ; Tatabánya ; lakás ; 55 ; 125000 ; felújított ; igen ; igen
+4 ; Sopron ; lakás ; 45 ; 200000 ; jó ; nem ; igen
+5 ; Tata ; családi ház ; 130 ; 225000 ; jó ; nem ; igen
+6 ; Oroszlány ; lakás ; 50 ; 175000; jó ; nem ; igen	
