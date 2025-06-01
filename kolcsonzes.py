@@ -1,96 +1,90 @@
-INGATLANOK_FILE = 'ingatlanok.txt'
-KOLCSONZOTTEK_FILE = 'kolcsonzottek.txt'
-MEZOK = ["ID", "Cím", "Típus", "Alapterület", "Ár/hó", "Állapot", "Erkély", "Elérhető"]
+def beolvas_fajl():
+    ingatlanok = []
+    with open("ingatlanok.txt", "r", encoding="utf-8") as f:
+        f.readline() 
+        for sor in f:
+            adat = [x.strip() for x in sor.strip().split(";")]
+            ingatlan = {
+                "szám": adat[0],
+                "Cím": adat[1],
+                "Típus": adat[2],
+                "Alapterület": int(adat[3]),
+                "Ár": int(adat[4]),
+                "Állapot": adat[5],
+                "Erkély": adat[6],
+                "Elérhető": adat[7]
+            }
+            ingatlanok.append(ingatlan)
+    return ingatlanok
 
-def betolt_ingatlanok():
-    try:
-        with open(INGATLANOK_FILE, 'r', encoding='utf-8') as f:
-            sorok = f.readlines()
-        ingatlanok = []
-        for sor in sorok:
-            adat = sor.strip().split('|')
-            if len(adat) == len(MEZOK):
-                ingatlan = dict(zip(MEZOK, adat))
-                ingatlanok.append(ingatlan)
-        return ingatlanok
-    except FileNotFoundError:
-        return []
 
-def mentes_ingatlanok(ingatlanok):
-    with open(INGATLANOK_FILE, 'w', encoding='utf-8') as f:
-        for ingatlan in ingatlanok:
-            sor = '|'.join([ingatlan[m] for m in MEZOK])
-            f.write(sor + '\n')
+def kiir_ingatlan(ingatlan):
+    print(f"\nKiválasztott ingatlan:")
+    for kulcs, ertek in ingatlan.items():
+        print(f"{kulcs}: {ertek}")
 
-def keres_ingatlan(helyszin=None, tipus=None, max_ar=None):
-    ingatlanok = betolt_ingatlanok()
-    eredmenyek = []
-    for ingatlan in ingatlanok:
-        if ingatlan['Elérhető'] != 'igen':
-            continue
-        if helyszin and helyszin.lower() not in ingatlan['Cím'].lower():
-            continue
-        if tipus and tipus.lower() != ingatlan['Típus'].lower():
-            continue
-        if max_ar:
-            try:
-                if int(ingatlan['Ár/hó']) > int(max_ar):
-                    continue
-            except ValueError:
-                continue
-        eredmenyek.append(ingatlan)
-    return eredmenyek
 
-def kolcsonzes(ingatlan_id, kolcsonzo_nev):
-    ingatlanok = betolt_ingatlanok()
-    uj_lista = []
-    kolcsonzott = None
+def kereses_szam_alapjan(ingatlanok):
+    szam = input("Add meg az ingatlan számát (1-6): ")
+    for i in ingatlanok:
+        if i["szám"] == szam:
+            kiir_ingatlan(i)
+            return
+    print("Nincs ilyen számú ingatlan!")
 
-    for ingatlan in ingatlanok:
-        if ingatlan['ID'] == str(ingatlan_id) and ingatlan['Elérhető'] == 'igen':
-            kolcsonzott = ingatlan
-        else:
-            uj_lista.append(ingatlan)
 
-    if not kolcsonzott:
-        print(" Nincs ilyen elérhető ingatlan.")
+def kereses_tulajdonsag_alapjan(ingatlanok):
+    print("Keresés tulajdonság alapján:")
+    print("1 - Minimum alapterület")
+    print("2 - Maximum ár")
+    print("3 - Típus (lakás/családi ház)")
+    valasztas = input("Választás (1/2/3): ")
+
+    if valasztas == "1":
+        min_ter = int(input("Minimum alapterület (m²): "))
+        szurt = [i for i in ingatlanok if i["Alapterület"] >= min_ter]
+
+    elif valasztas == "2":
+        max_ar = int(input("Maximum ár (Ft): "))
+        szurt = [i for i in ingatlanok if i["Ár"] <= max_ar]
+
+    elif valasztas == "3":
+        tipus = input("Típus (lakás/családi ház): ").lower()
+        szurt = [i for i in ingatlanok if i["Típus"].lower() == tipus]
+
+    else:
+        print("Érvénytelen választás.")
         return
-    sor = '|'.join([kolcsonzott[m] for m in MEZOK]) + f"|{kolcsonzo_nev}"
-    with open(KOLCSONZOTTEK_FILE, 'a', encoding='utf-8') as f:
-        f.write(sor + '\n')
-    mentes_ingatlanok(uj_lista)
-    print(f" Kikölcsönözve: {kolcsonzott['Cím']} -> {kolcsonzo_nev}")
 
-def menu():
-    while True:
-        print("\n KÖLCSÖNZŐ RENDSZER")
-        print("1 - Ingatlan keresése")
-        print("2 - Ingatlan kölcsönzése")
-        print("3 - Kilépés")
-        valaszt = input("Válassz műveletet (1/2/3): ")
+    if not szurt:
+        print("Nincs találat.")
+        return
 
-        if valaszt == '1':
-            helyszin = input("Helyszín (Enter, ha nem számít): ")
-            tipus = input("Típus (lakás, ház, garzon stb.): ")
-            max_ar = input("Max ár (Ft/hó): ")
+    print("\nTalált ingatlanok:")
+    for index, i in enumerate(szurt, 1):
+        print(f"{index}. {i['Cím']} - {i['Típus']}, {i['Alapterület']} m², {i['Ár']} Ft")
 
-            talalatok = keres_ingatlan(helyszin, tipus, max_ar)
-            if talalatok:
-                print("\n Talált ingatlanok:")
-                for ing in talalatok:
-                    print(f"{ing['ID']}: {ing['Cím']} | {ing['Típus']} | {ing['Ár/hó']} Ft")
-            else:
-                print(" Nincs találat.")
+    valasztott = int(input("Válassz egyet a sorszám alapján: "))
+    if 1 <= valasztott <= len(szurt):
+        kiir_ingatlan(szurt[valasztott - 1])
+    else:
+        print("Érvénytelen sorszám.")
 
-        elif valaszt == '2':
-            ingatlan_id = input("Add meg az ingatlan ID-ját: ")
-            kolcsonzo = input("Kölcsönző neve: ")
-            kolcsonzes(ingatlan_id, kolcsonzo)
 
-        elif valaszt == '3':
-            print("Kilépés...")
-            break
+def main():
+    ingatlanok = beolvas_fajl()
+    print("Ingatlan kereső")
+    print("1 - Keresés szám alapján")
+    print("2 - Keresés tulajdonság alapján")
+    valasztas = input("Válassz, my nigga: ")
 
-        else:
-            print(" Érvénytelen választás!")
-menu()
+    if valasztas == "1":
+        kereses_szam_alapjan(ingatlanok)
+    elif valasztas == "2":
+        kereses_tulajdonsag_alapjan(ingatlanok)
+    else:
+        print("vro nincs ilyen opció :broken_heart_emoji:.")
+
+
+main()
+
